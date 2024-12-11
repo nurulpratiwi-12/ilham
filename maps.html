@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maps - Rumah Makan Setia</title>
+    <link rel="stylesheet" href="maps.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+
+<body>
+     <header class="header">
+    <div class="header-content">
+        <h1>RUMAH MAKAN SETIA</h1>
+        <nav class="navbar">
+            <a href="home.html">Home</a>
+            <a href="menu.html">Menu</a>
+            <a href="maps.html">Maps</a>
+        </nav>
+    </div>
+</header>
+    <main class="content">
+        <section class="section">
+            <h2>Lokasi</h2>
+            <div id="map" class="map"></div>
+                    <section class="section">
+            <div class="contact-info">
+                <p>📞 Telepon: 0857-5738-3851</p>
+                <p>🏢 Alamat: Jl. Bina Karya No.35</p>
+            </div>
+        </section>
+        </section>
+    </main>
+    <script>
+        const map = L.map("map").setView([-6.1214112, 120.4607031], 18);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+        // Marker utama untuk lokasi restoran
+            const marker = L.marker([-6.1214112, 120.4607031]).addTo(map);
+            marker.bindTooltip("Rumah Makan Setia", {
+                permanent: true,
+                direction: "top"
+            });
+            fetch("./mesjid.geojson")
+                .then(response => response.json())
+                .then(geojsonData => {
+                    // Menambahkan geoJSON ke peta
+                    L.geoJSON(geojsonData, {
+                        pointToLayer: function(feature, latlng) {
+                            // Membuat marker (titik) untuk setiap mesjid
+                            return L.marker(latlng);
+                        },
+                        onEachFeature: function(feature, layer) {
+                            if (feature.properties && feature.properties["Nama Mesjid"]) {
+                                // Menambahkan popup yang menampilkan nama mesjid
+                                layer.bindPopup("<strong>Nama Mesjid:</strong> " + feature.properties["Nama Mesjid"]);
+                            }
+                        }
+                    }).addTo(map); // Menambahkan geoJSON ke peta
+                })
+                .catch(error => console.error("Error loading mesjid GeoJSON:", error));
+
+            fetch("./sekolah.geojson")
+                .then(response => response.json())
+                .then(geojsonData => {
+                    // Menambahkan geoJSON ke peta
+                    L.geoJSON(geojsonData, {
+                        onEachFeature: function(feature, layer) {
+                            if (feature.properties && feature.properties["Nama Sekolah diKota Selayar"]) {
+                                // Menambahkan popup yang menampilkan nama sekolah
+                                layer.bindPopup("<strong>Nama Sekolah:</strong> " + feature.properties["Nama Sekolah diKota Selayar"]);
+                            }
+                        }
+                    }).addTo(map); // Menambahkan geoJSON ke peta
+                })
+                .catch(error => console.error("Error loading sekolah GeoJSON:", error));
+    </script>
+</body>
+
+</html>
